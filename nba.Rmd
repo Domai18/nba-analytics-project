@@ -1,0 +1,100 @@
+---
+title: "Finale BUS 310"
+author: "Derrick O"
+date: "2025-12-04"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Problem 1
+
+### Importing dataset
+
+The dataset contains NBA data on team statistics from the 2022/23 – 2024/25 seasons.
+```{r}
+nba <- read.csv("~/Desktop/Bus Analytics/exam.csv")
+View(nba)
+```
+
+### Setting seed number
+
+I chose 6 as my seed number as this is number of the central midfield position that I play in soccer.
+```{r}
+set.seed(6)
+```
+
+### Loading Libraries
+```{r}
+library(cluster)
+library(factoextra)
+```
+
+### Reading the file and creating a dataframe
+```{r}
+df = read.csv("~/Desktop/Bus Analytics/exam.csv")
+```
+
+### Standardizing variables
+
+Due to the data containing team names which is categorical, I decided to only include the three variables that I will be using for my analysis. They include: 3PA, 3P% and PTS. 
+```{r}
+df_numeric = df[, c("X3PA", "X3P.", "PTS")]
+dfsc = scale(df_numeric)
+```
+
+### Optimal number of clusters
+```{r}
+fviz_nbclust(dfsc, kmeans, method="silhouette")
+```
+
+
+### Executing K-,means clustering with k=3
+```{r}
+k3 = kmeans(dfsc, centers = 3, nstart = 1000)
+k3
+```
+### Appending Observation cluster assignment
+```{r}
+df_k3 = cbind(df, clusterID = k3$cluster)
+plot(df_k3$X3P., df_k3$PTS, col=factor(df_k3$clusterID),xlab='3P%', ylab = 'PTS')
+```
+
+```{r}
+# Appending Observation cluster assignment
+df_k3 = cbind(df, clusterID = k3$cluster)
+plot(df_k3$X3PA, df_k3$PTS, col=factor(df_k3$clusterID),xlab='3PA', ylab = 'PTS')
+```
+
+### Calculating Averages
+```{r}
+# cluster 1 averages
+mean(df_k3$X3P.[df_k3$clusterID==1])
+mean(df_k3$PTS[df_k3$clusterID==1])
+```
+
+```{r}
+# cluster 2 averages 
+mean(df_k3$X3P.[df_k3$clusterID==2])
+mean(df_k3$PTS[df_k3$clusterID==2])
+```
+
+
+```{r}
+# cluster 3 averages
+mean(df_k3$X3P.[df_k3$clusterID==3])
+mean(df_k3$PTS[df_k3$clusterID==3])
+```
+
+### Interpretation & Motivation
+
+In 2018, as a Houston Rockets fan, I watched my then team collapse in the WCF against Golden State after missing 27 straight threes. It was an important moment that made me question why NBA teams are so committed to copying the Warriors’ high-volume three-point identity. Houston was shooting 62% from mid-range and consistently getting clean looks inside, especially with Golden State lacking a true rim protector, in their effort for a 'small ball' lineup, yet they abandoned what was working and still attempted 44 threes, finishing just 7 for 44. Watching a team with capable scorers (not shooters) force a strategy so misaligned with the team's ability made me question whether the league’s obsession with replicating Golden State is actually justified.
+
+To explore this, I analyzed three variables: 3PA, 3P%, and PTS. All while using k-means clustering to segment NBA teams into offensive groupings. My goal was to see whether taking more threes truly leads to higher scoring, or whether efficiency is the real driver behind elite offenses.
+
+The results revealed three clear clusters. The first contained low-efficiency teams (avg. 3P% = 0.344) that scored the fewest points regardless of volume, showing that high 3PA alone does not improve offensive output. The second cluster represented league-average teams with moderate efficiency and scoring (3P% = 0.367; PTS = 115). The third cluster, closest to the Golden State blueprint, featured the most efficient teams (3P% = 0.371 – 0.372) and the highest scoring offenses (PTS = 118). Visualizations of both 3PA vs PTS and 3P% vs PTS confirmed that efficiency, far more than volume, separates elite offenses from the rest.
+
+Overall, this analysis shows that copying the Warriors’ approach only works for teams that already have above-average shooting efficiency. Simply increasing three-point attempts does not guarantee higher scoring and often leads to the kind of offensive collapse I witnessed in 2018.From our analysis, a key motto behind GSW's success is, efficiency is king.
+
